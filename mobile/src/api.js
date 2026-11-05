@@ -67,9 +67,15 @@ async function createDevice(cloud) {
   // (Firestore guarda las escrituras pendientes y las sube al volver la conexión)
   const fromCloud = (fn) => (cloud ? withTimeout(fn(), 5000).catch(() => null) : null);
   const ramos = (await fromCloud(() => cloud.ramos())) || undefined;
+  // Si el catálogo de Firestore no trae ninguna clase (por ejemplo, editado por error), se usa la copia incluida
+  // en la app: nadie debe abrir Mi Semana con el horario en blanco
+  const clasesIniciales = () => {
+    const desdeNube = ramos ? seedBlocks(ramos) : [];
+    return desdeNube.some((b) => b.type === 'clase') ? desdeNube : seedBlocks();
+  };
   const fresh = () => ({
     prefs: JSON.parse(JSON.stringify(DEFAULT_PREFS)), proposals: [], conflicts: [],
-    generated: false, dirty: false, days: {}, dirtyDays: [], blocks: seedBlocks(ramos), seedVersion: SEED_VERSION,
+    generated: false, dirty: false, days: {}, dirtyDays: [], blocks: clasesIniciales(), seedVersion: SEED_VERSION,
   });
   // Nos quedamos con la versión más reciente: así lo hecho sin señal se sube al volver a conectarse.
   // Las semanas creadas con un horario de ejemplo anterior se descartan.

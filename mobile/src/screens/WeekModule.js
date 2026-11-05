@@ -4,18 +4,25 @@
  * Pestañas: Mi semana · Preferencias · Mi propuesta
  */
 import React, { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View, Text, Pressable, ScrollView, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import { C, CAT, DAYS, DAYS_L, DATES, TODAY, WEEK_LABEL, TYPE, LEVEL_COLOR } from '../theme';
 import { Btn, Chip, Stepper, Pill, Field, Icon } from '../components/ui';
 import EditSheet from '../components/EditSheet';
-import { fmt, dur, parseT, dayBlocks, loadOf, hasCert, loadLevel, overlapsOf } from '../engine';
+import { fmt, dur, parseT, dayBlocks, gapsFrom, loadOf, hasCert, loadLevel, overlapsOf } from '../engine';
 
+const GUIA_KEY = 'mi-semana:guia-vista';
 const LEVEL_TXT = { ok: 'Día liviano', mid: 'Día exigente', high: 'Día sobrecargado' };
 
 export default function WeekModule({ week, api, mode, store, onBack }) {
   const [tab, setTab] = useState('week');
   const [sel, setSel] = useState(Math.max(TODAY, 0)); // abre en el día de hoy (el domingo, en el lunes que viene)
-  const [onboard, setOnboard] = useState(true);
+  // La guía "Así funciona Mi Semana" se muestra hasta que el usuario la cierra (se recuerda en el teléfono)
+  const [onboard, setOnboard] = useState(false);
+  useEffect(() => {
+    AsyncStorage.getItem(GUIA_KEY).then((v) => setOnboard(v !== '1')).catch(() => setOnboard(true));
+  }, []);
+  const cerrarGuia = () => { setOnboard(false); AsyncStorage.setItem(GUIA_KEY, '1').catch(() => {}); };
   const [ed, setEd] = useState(null);
   const [busy, setBusy] = useState(false);
   const [prefs, setPrefs] = useState(week.prefs);
@@ -92,6 +99,12 @@ export default function WeekModule({ week, api, mode, store, onBack }) {
     const ov = new Set(overlapsOf(blocks, sel).flat().map((b) => b.id));
     const alerts = dayInfo(sel) ? week.conflicts.filter((c) => c.day === sel) : [];
     const care = items.filter((b) => b.type === 'cuidado').length;
+    // Cifras del resumen: módulos de clase y tiempo libre entre la primera y la última clase
+    const clases = items.filter((b) => b.type === 'clase');
+    const libre = clases.length
+      ? gapsFrom(items, clases[0].start, Math.max(...clases.map((b) => b.end))).reduce((a, g) => a + g.end - g.start, 0)
+      : 0;
+    const porRevisar = week.proposals.filter((p) => p.day === sel && p.status === 'pending').length;
 
     const rows = [];
     let cursor = sel >= 5 ? 540 : 420;
@@ -112,7 +125,7 @@ export default function WeekModule({ week, api, mode, store, onBack }) {
         <ScrollView contentContainerStyle={{ paddingBottom: 110 }}>
           {onboard && (
             <View style={s.onb}>
-              <Pressable style={{ position: 'absolute', top: 8, right: 8 }} onPress={() => setOnboard(false)} hitSlop={10}><Icon name="close" size={18} color={C.muted} /></Pressable>
+              <Pressable style={{ position: 'absolute', top: 8, right: 8 }} onPress={cerrarGuia} hitSlop={10}><Icon name="close" size={18} color={C.muted} /></Pressable>
               <Text style={s.onbH}>Así funciona Mi Semana</Text>
               <Text style={s.onbL}>1. Tus clases UDD ya están cargadas (en azul).</Text>
               <Text style={s.onbL}>2. Agrega tus propios momentos de autocuidado con el botón +.</Text>
@@ -123,18 +136,32 @@ export default function WeekModule({ week, api, mode, store, onBack }) {
               </View>
             </View>
           )}
-          {dayInfo(sel) && isDirty(sel) && !isPast(sel) && (
-            <View style={s.dirty}>
-              <Text style={{ flex: 1, color: '#6b4500', fontSize: 13 }}>Cambiaste {elDia(sel)}. ¿Actualizo su propuesta?</Text>
-              <Btn small title="Actualizar" onPress={() => genDay(sel)} />
-            </View>
-          )}
-          <View style={s.daysum}>
-            <View>
+          {/* Resumen del día: cifras clave y la acción principal, sin tener que bajar */}
+          <View style={s.sumCard}>
+            <View style={s.sumHead}>
               <Text style={s.daysumH}>{DAYS_L[sel]} {DATES[sel]}</Text>
-              <Text style={{ color: C.muted, fontSize: 13 }}>{dur(L)} ocupado · {care} de autocuidado</Text>
+              {sel === TODAY && <View style={s.hoy}><Text style={s.hoyT}>Hoy</Text></View>}
+              <View style={{ flex: 1 }} />
+              <Pill level={lv}>{LEVEL_TXT[lv]}</Pill>
             </View>
-            <Pill level={lv}>{LEVEL_TXT[lv]}</Pill>
+            <View style={s.stats}>
+              <View style={s.stat}><Text style={s.statN}>{clases.length}</Text><Text style={s.statL}>{clases.length === 1 ? 'clase' : 'clases'}</Text></View>
+              <View style={s.stat}><Text style={s.statN}>{L ? dur(L) : '—'}</Text><Text style={s.statL}>en clases</Text></View>
+              <View style={s.stat}><Text style={s.statN}>{clases.length ? dur(libre) : '—'}</Text><Text style={s.statL}>libre entre clases</Text></View>
+              <View style={s.stat}><Text style={[s.statN, { color: C.cuid }]}>{care}</Text><Text style={s.statL}>autocuidado</Text></View>
+            </View>
+            {isPast(sel) ? (
+              <Text style={s.past}>Este día ya pasó. Las propuestas son para hoy y los próximos días.</Text>
+            ) : dayInfo(sel) && isDirty(sel) ? (
+              <View style={s.dirtyIn}>
+                <Text style={{ flex: 1, color: '#6b4500', fontSize: 13 }}>Cambiaste {elDia(sel)}. ¿Actualizo su propuesta?</Text>
+                <Btn small title="Actualizar" onPress={() => genDay(sel)} />
+              </View>
+            ) : dayInfo(sel) ? (
+              <Btn icon="creation" title={porRevisar ? `Ver propuesta (${porRevisar} por revisar)` : 'Ver propuesta del día'} onPress={() => setTab('prop')} />
+            ) : (
+              <Btn icon="creation" title={`Proponer autocuidado para ${sel === TODAY ? 'hoy' : elDia(sel)}`} onPress={() => genDay(sel)} />
+            )}
           </View>
           {alerts.map((a, i) => (
             <View key={i} style={[s.alert, a.level === 'alta' && { backgroundColor: C.certBg }]}>
@@ -184,14 +211,6 @@ export default function WeekModule({ week, api, mode, store, onBack }) {
                 </Pressable>
               </View>
             ))}
-          </View>
-          <View style={{ padding: 14 }}>
-            {isPast(sel) ? (
-              <Text style={s.past}>Este día ya pasó. Las propuestas son para hoy y los próximos días.</Text>
-            ) : (
-              <Btn icon="creation" title={dayInfo(sel) ? `Ver la propuesta para ${elDia(sel)}` : `Pedir propuesta para ${elDia(sel)}`}
-                onPress={() => (dayInfo(sel) ? setTab('prop') : genDay(sel))} />
-            )}
           </View>
         </ScrollView>
         {!isPast(sel) && (
@@ -429,7 +448,16 @@ const s = StyleSheet.create({
   onbH: { fontSize: 15.5, fontWeight: '800', marginBottom: 6, color: C.ink },
   onbL: { fontSize: 13.5, lineHeight: 21, color: C.ink },
   dirty: { margin: 14, marginBottom: 0, backgroundColor: C.warnBg, borderRadius: 12, padding: 10, flexDirection: 'row', alignItems: 'center', gap: 10 },
-  daysum: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', paddingHorizontal: 16, paddingTop: 14, paddingBottom: 4 },
+  // Tarjeta de resumen del día
+  sumCard: { backgroundColor: C.white, borderRadius: 18, padding: 14, marginHorizontal: 14, marginTop: 14, gap: 12, elevation: 2, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 6, shadowOffset: { width: 0, height: 2 } },
+  sumHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  hoy: { backgroundColor: '#FFF4DB', borderRadius: 999, paddingHorizontal: 8, paddingVertical: 2 },
+  hoyT: { color: '#9A6200', fontSize: 12, fontWeight: '800' },
+  stats: { flexDirection: 'row', gap: 8 },
+  stat: { flex: 1, backgroundColor: C.soft, borderRadius: 12, paddingVertical: 10, paddingHorizontal: 6, alignItems: 'center' },
+  statN: { fontSize: 15.5, fontWeight: '800', color: C.ink, textAlign: 'center' },
+  statL: { fontSize: 11, color: C.muted, textAlign: 'center', marginTop: 2 },
+  dirtyIn: { backgroundColor: C.warnBg, borderRadius: 12, padding: 10, flexDirection: 'row', alignItems: 'center', gap: 10 },
   daysumH: { fontSize: 20, fontWeight: '800', color: C.ink },
   alert: { flexDirection: 'row', gap: 8, marginHorizontal: 14, marginTop: 6, borderRadius: 12, padding: 10, backgroundColor: C.warnBg, alignItems: 'flex-start' },
   legend: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, paddingHorizontal: 16, paddingTop: 10 },
@@ -467,7 +495,7 @@ const s = StyleSheet.create({
   recreo: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 1 },
   recreoL: { flex: 1, height: 1, backgroundColor: C.line },
   recreoT: { fontSize: 11.5, color: C.muted, fontWeight: '700' },
-  past: { fontSize: 13, color: C.muted, textAlign: 'center', backgroundColor: C.white, borderRadius: 12, padding: 12 },
+  past: { fontSize: 13, color: C.muted, textAlign: 'center', backgroundColor: C.soft, borderRadius: 12, padding: 12 },
   ai: { marginHorizontal: 14, marginTop: 10, padding: 12, borderRadius: 14, backgroundColor: '#EEF4FB', borderWidth: 1, borderColor: '#C9DAEE' },
   aiH: { fontSize: 13.5, fontWeight: '800', color: C.udd },
   aiT: { fontSize: 13, color: C.ink, marginTop: 4, lineHeight: 18 },

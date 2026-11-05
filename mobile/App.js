@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, Pressable, Modal, StyleSheet, ActivityIndicator, BackHandler, Alert } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import * as ScreenOrientation from 'expo-screen-orientation';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import HomeScreen from './src/screens/HomeScreen';
 import WeekModule from './src/screens/WeekModule';
@@ -71,7 +72,10 @@ export default function App() {
                   ? 'Empieza un participante nuevo con la semana de ejemplo. Lo anterior queda guardado en Firestore.'
                   : 'Se borrarán tus cambios y volverá la semana de ejemplo.', [
                   { text: 'Cancelar', style: 'cancel' },
-                  { text: 'Reiniciar', style: 'destructive', onPress: () => api.reset().then(() => setScreen('home'))
+                  { text: 'Reiniciar', style: 'destructive', onPress: () => api.reset()
+                    // El nuevo participante vuelve a ver la guía "Así funciona Mi Semana"
+                    .then(() => AsyncStorage.removeItem('mi-semana:guia-vista').catch(() => {}))
+                    .then(() => setScreen('home'))
                     .catch((e) => Alert.alert('No se pudo reiniciar', `Revisa tu conexión a internet e inténtalo de nuevo. (${e.message})`)) },
                 ]);
               }}><Icon name="refresh" size={22} color={C.ink} /><Text style={s.itT}>Nuevo participante (reiniciar)</Text></Pressable>

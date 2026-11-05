@@ -10,23 +10,23 @@
       "package": "com.felirow.misemana",
       "versionCode": 1,
       "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0D4B8E"
       }
     },
     "plugins": [
-      [
-        "expo-build-properties",
-        {
-          "android": {
-            "usesCleartextTraffic": true
-          }
-        }
-      ],
       "expo-status-bar",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 200,
+          "backgroundColor": "#0D4B8E"
+        }
+      ]
     ],
     "extra": {
-      "apiUrl": "http://192.168.100.5:3000",
       "firebase": {
         "apiKey": "AIzaSyC7-sMwMbAY02UbrkCNUSeCMq3D06II0j0",
         "authDomain": "modulomiudd.firebaseapp.com",
@@ -35,6 +35,7 @@
         "messagingSenderId": "308917177316",
         "appId": "1:308917177316:web:7bd5d894d68731941855f1"
       }
-    }
+    },
+    "icon": "./assets/icon.png"
   }
 }
