@@ -34,6 +34,9 @@
         "storageBucket": "modulomiudd.firebasestorage.app",
         "messagingSenderId": "308917177316",
         "appId": "1:308917177316:web:7bd5d894d68731941855f1"
+      },
+      "eas": {
+        "projectId": "4f0d6851-e324-49c8-b0b2-f1df07f62014"
       }
     },
     "icon": "./assets/icon.png"
