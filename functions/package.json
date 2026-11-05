@@ -1,0 +1,18 @@
+{
+  "name": "mi-semana-functions",
+  "private": true,
+  "description": "Cloud Functions de Mi Semana: propuesta de autocuidado generada con Gemini (plan gratuito)",
+  "main": "index.js",
+  "engines": {
+    "node": "22"
+  },
+  "scripts": {
+    "copiar-motor": "node copiar-motor.js",
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "@google/genai": "^2.32.0",
+    "firebase-admin": "^14.5.0",
+    "firebase-functions": "^7.4.0"
+  }
+}

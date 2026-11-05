@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "Mi UDD · Mi Semana",
+    "slug": "mi-udd-mi-semana",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#0D4B8E",
+    "android": {
+      "package": "com.felirow.misemana",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "backgroundColor": "#0D4B8E"
+      }
+    },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ],
+      "expo-status-bar",
+      "expo-font"
+    ],
+    "extra": {
+      "apiUrl": "http://192.168.100.5:3000",
+      "firebase": {
+        "apiKey": "AIzaSyC7-sMwMbAY02UbrkCNUSeCMq3D06II0j0",
+        "authDomain": "modulomiudd.firebaseapp.com",
+        "projectId": "modulomiudd",
+        "storageBucket": "modulomiudd.firebasestorage.app",
+        "messagingSenderId": "308917177316",
+        "appId": "1:308917177316:web:7bd5d894d68731941855f1"
+      }
+    }
+  }
+}

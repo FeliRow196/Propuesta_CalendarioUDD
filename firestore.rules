@@ -1,0 +1,18 @@
+rules_version = '2';
+// Cada teléfono entra con Autenticación anónima y solo puede leer y escribir su propio documento.
+// (La API Node.js usa firebase-admin y no pasa por estas reglas.)
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{uid}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+    // Catálogo de ramos: la app solo lo lee; se carga con `npm run cargar-ramos` (server/)
+    match /ramos/{ramoId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+  }
+}

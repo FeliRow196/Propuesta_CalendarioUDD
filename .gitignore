@@ -1,0 +1,21 @@
+node_modules/
+.expo/
+android/
+ios/
+dist/
+*.apk
+*.aab
+clave.json
+*service-account*.json
+.env
+.secret.local
+functions/engine.js
+
+# Firebase: caché y registros de publicación
+.firebase/
+*.log
+firebase-debug*.log
+
+# Sistema
+.DS_Store
+Thumbs.db
