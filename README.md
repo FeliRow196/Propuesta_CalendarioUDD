@@ -4,8 +4,8 @@
 
 **Un módulo de bienestar estudiantil para _Mi UDD_ que lee tu horario, detecta los días sobrecargados y te propone pausas, comidas y descanso en tus huecos libres reales.**
 
-[![1er Lugar Semana_i+ UDD 2026](https://img.shields.io/badge/🏆_1er_Lugar-Semana__i%2B_UDD_2026-FFB300?style=for-the-badge)](#-reconocimiento-y-equipo)
-[![Desafío 72H: Hackea Tu Campus](https://img.shields.io/badge/Desaf%C3%ADo_72H-Hackea_Tu_Campus-D32F2F?style=for-the-badge)](#-reconocimiento-y-equipo)
+[![1er Lugar Semana_i+ UDD 2026](https://img.shields.io/badge/🏆_1er_Lugar-Semana__i%2B_UDD_2026-FFB300?style=for-the-badge)](#-reconocimiento-y-autor)
+[![Desafío 72H: Hackea Tu Campus](https://img.shields.io/badge/Desaf%C3%ADo_72H-Hackea_Tu_Campus-D32F2F?style=for-the-badge)](#-reconocimiento-y-autor)
 
 ![React Native](https://img.shields.io/badge/React_Native-0.88-61DAFB?logo=react&logoColor=white)
 ![Expo](https://img.shields.io/badge/Expo-SDK_58-000020?logo=expo&logoColor=white)
@@ -14,7 +14,7 @@
 ![Gemini](https://img.shields.io/badge/IA-Gemini-8E75B2?logo=googlegemini&logoColor=white)
 ![Android](https://img.shields.io/badge/Plataforma-Android-3DDC84?logo=android&logoColor=white)
 
-📄 [Informe del proyecto](docs/Informe_CalendarioUDD.docx)
+📄 [Informe del proyecto (PDF)](docs/Informe_CalendarioUDD.pdf)
 
 </div>
 
@@ -26,7 +26,7 @@
 
 Una jornada en la UDD puede tener hasta **8 módulos de 1 h 10 min** separados por recreos de 10 minutos, que apenas alcanzan para cambiar de sala. El horario de _Mi UDD_ informa qué clase viene, pero no muestra cuánto pesa el día ni dónde quedan los tiempos libres. En semanas de certámenes el almuerzo se reduce a lo que sobre entre dos clases, la pausa no ocurre y el sueño cede frente al estudio.
 
-En una encuesta del equipo a **40 estudiantes UDD**:
+En una encuesta propia a **40 estudiantes UDD**:
 
 - El **50 %** calificó su estrés académico en 4 o 5 (escala de 1 a 5).
 - Lo primero que sacrifican es **dormir 7-8 horas** (36,8 %), seguido de las pausas (26,3 %), la alimentación (21,1 %) y la actividad física (15,8 %).
@@ -209,7 +209,7 @@ npm start        # http://localhost:3000 (sin credenciales guarda los datos en m
 
 ### Variables de entorno
 
-Ninguna es necesaria para correr la app. Solo se usan en la API, el script de carga de ramos y la función de IA:
+Ninguna es necesaria para correr la app. Solo se usan en la API, el script de carga de ramos y la función de IA. La plantilla está en [`.env.example`](.env.example):
 
 | Variable | Dónde | Para qué |
 |---|---|---|
@@ -225,7 +225,7 @@ Para cargar el catálogo de ramos en tu proyecto: `cd server` y luego `GOOGLE_CL
 
 ---
 
-## 🏆 Reconocimiento y equipo
+## 🏆 Reconocimiento y autor
 
 **Calendario UDD | Mi Semana** obtuvo el **Primer Lugar del Concurso Semana_i+ 2026**, en el desafío **72H: Hackea Tu Campus**, organizado por **EdEm UDD** (Ecosistema de Emprendimiento UDD) en Concepción, el 24 de noviembre de 2026.
 
@@ -240,13 +240,8 @@ Para cargar el catálogo de ramos en tu proyecto: `cd server` y luego `GOOGLE_CL
   </tr>
 </table>
 
-### Equipo
+### Autor
 
-Estudiantes de **Ingeniería Civil en Informática e Innovación Tecnológica**, Universidad del Desarrollo, sede Concepción:
-
-| Integrante | GitHub |
-|---|---|
-| **Felipe Rubilar** | [@FeliRow196](https://github.com/FeliRow196) |
-| **Mauro Pérez** | — |
+**Felipe Rubilar** ([@FeliRow196](https://github.com/FeliRow196)), creador y desarrollador del proyecto. Estudiante de **Ingeniería Civil en Informática e Innovación Tecnológica**, Universidad del Desarrollo, sede Concepción.
 
 > El proyecto nació como un [prototipo web](https://felirow196.github.io/Mejora_miudd/) durante Semana-i y evolucionó a esta app Android nativa. Es un prototipo académico: el Inicio de _Mi UDD_ es una recreación y el horario es de ejemplo. El siguiente paso es un piloto de 3 semanas con estudiantes de primer año y, después, la integración con el horario real de _Mi UDD_.
